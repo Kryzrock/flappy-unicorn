@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e1b4b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Flappy Unicorn: vuela con alas animadas y flatulencias turbo, recolecta hongos mágicos y encuentra a la Reina Hongo." />
+  <title>Flappy Unicorn — En busca de la Reina Hongo</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23f472b6'/%3E%3Cstop offset='50%25' stop-color='%23a855f7'/%3E%3Cstop offset='100%25' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M42 12 L34 26 L46 24 Z' fill='%23fde047'/%3E%3Ccircle cx='32' cy='38' r='14' fill='%23ffffff'/%3E%3Ccircle cx='37' cy='35' r='2.5' fill='%231e1b4b'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <div class="game-frame" id="gameFrame">
+      <canvas id="gameCanvas" aria-label="Área de juego de Flappy Unicorn"></canvas>
+
+      <!-- HUD superior -->
+      <header class="hud" aria-live="polite">
+        <div class="hud-left">
+          <button
+            type="button"
+            id="soundBtn"
+            class="icon-btn"
+            aria-label="Silenciar sonido"
+            title="Sonido (M)"
+          >
+            <span id="soundIcon" aria-hidden="true">🔊</span>
+          </button>
+          <button
+            type="button"
+            id="pauseBtn"
+            class="icon-btn"
+            aria-label="Pausar juego"
+            title="Pausar (P)"
+            hidden
+          >
+            <span id="pauseIcon" aria-hidden="true">⏸️</span>
+          </button>
+        </div>
+
+        <div class="hud-center" id="hudCenter" hidden>
+          <div class="score-pill" id="scoreDisplay">
+            <span id="currentScore">0</span>
+          </div>
+          <div class="mission-pill" id="missionPill" title="Hongos para encontrar a la Reina Hongo">
+            <span aria-hidden="true">🍄</span>
+            <span id="mushroomCount">0</span>/<span id="mushroomTarget">15</span>
+          </div>
+        </div>
+
+        <div class="hud-right">
+          <div class="speed-badge" id="speedBadge" hidden>
+            <span class="speed-dot" aria-hidden="true"></span>
+            <span id="speedText">1.0x</span>
+          </div>
+          <button
+            type="button"
+            id="fullscreenBtn"
+            class="icon-btn"
+            aria-label="Pantalla completa"
+            title="Pantalla completa (F)"
+          >
+            <span id="fullscreenIcon" aria-hidden="true">⛶</span>
+          </button>
+          <button
+            type="button"
+            id="exitBtn"
+            class="icon-btn exit-btn"
+            aria-label="Salir del juego"
+            title="Salir del juego"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13 4h3a2 2 0 0 1 2 2v14" />
+              <path d="M2 20h3" />
+              <path d="M13 20h9" />
+              <path d="M10 12v.01" />
+              <path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Banner de misión -->
+      <div class="queen-banner" id="queenBanner" hidden>
+        👑 ¡La Reina Hongo ha aparecido! ¡Vuela hacia ella!
+      </div>
+
+      <!-- Pantalla de inicio -->
+      <section class="overlay" id="startOverlay" aria-labelledby="titleHeading">
+        <div class="card start-card">
+          <div class="badge-pill">🍄 Misión: La Reina Hongo</div>
+          <h1 id="titleHeading" class="game-title">
+            Flappy <span>Unicorn</span>
+          </h1>
+          <p class="subtitle">
+            Agita tus <strong>alas animadas</strong> y propúlsate con <strong>flatulencias turbo</strong>. ¡Recolecta <strong>15 hongos</strong> para encontrar a la <strong>Reina Hongo</strong>!
+          </p>
+
+          <div class="controls-hint">
+            <div class="hint-item">
+              <kbd>Espacio</kbd> / <kbd>↑</kbd> / <kbd>Clic</kbd>
+              <span>Aleteo + Turbo 💨</span>
+            </div>
+            <div class="hint-item">
+              <kbd>P</kbd>
+              <span>Pausar</span>
+            </div>
+          </div>
+
+          <div class="best-row">
+            <span>Mejor puntuación</span>
+            <strong id="startBestScore">0</strong>
+          </div>
+
+          <button type="button" id="startBtn" class="primary-btn">
+            <span>¡Despegar!</span>
+            <span aria-hidden="true">🦄</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Pantalla de pausa -->
+      <section class="overlay" id="pauseOverlay" hidden aria-labelledby="pauseHeading">
+        <div class="card compact-card">
+          <h2 id="pauseHeading">Juego en pausa</h2>
+          <p class="subtitle">Tómate un respiro entre las nubes.</p>
+          <div class="btn-stack">
+            <button type="button" id="resumeBtn" class="primary-btn">Continuar</button>
+            <button type="button" id="restartFromPauseBtn" class="secondary-btn">Reiniciar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pantalla de Game Over -->
+      <section class="overlay" id="gameOverOverlay" hidden aria-labelledby="gameOverHeading">
+        <div class="card gameover-card">
+          <div id="newRecordBadge" class="record-badge" hidden>🏆 ¡Nuevo récord!</div>
+          <h2 id="gameOverHeading">¡Fin del vuelo!</h2>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Puntuación</span>
+              <strong class="stat-value" id="finalScore">0</strong>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Hongos 🍄</span>
+              <strong class="stat-value" id="finalMushrooms">0</strong>
+            </div>
+          </div>
+
+          <div class="best-row">
+            <span>Mejor puntuación</span>
+            <strong id="finalBestScore">0</strong>
+          </div>
+
+          <div class="medal-row" id="medalRow">
+            <span class="medal-icon" id="medalIcon" aria-hidden="true">🪽</span>
+            <span class="medal-name" id="medalName">Aprendiz del cielo</span>
+          </div>
+
+          <button type="button" id="restartBtn" class="primary-btn">
+            <span>Jugar de nuevo</span>
+            <span aria-hidden="true">↺</span>
+          </button>
+          <p class="tiny-hint">Pulsa <kbd>Espacio</kbd> o <kbd>Enter</kbd> para reintentar</p>
+        </div>
+      </section>
+
+      <!-- Pantalla de Victoria (Reina Hongo) -->
+      <section class="overlay" id="victoryOverlay" hidden aria-labelledby="victoryHeading">
+        <div class="card victory-card">
+          <div class="record-badge">👑 ¡Misión cumplida!</div>
+          <h2 id="victoryHeading">¡Encontraste a la Reina Hongo!</h2>
+          <p class="subtitle">
+            Tu unicornio propulsado por flatulencias mágicas completó la búsqueda real.
+          </p>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Puntuación</span>
+              <strong class="stat-value" id="victoryScore">0</strong>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Mejor</span>
+              <strong class="stat-value" id="victoryBestScore">0</strong>
+            </div>
+          </div>
+
+          <button type="button" id="victoryRestartBtn" class="primary-btn">
+            <span>Volar otra vez</span>
+            <span aria-hidden="true">🌈</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Pantalla de Salida -->
+      <section class="overlay" id="exitOverlay" hidden aria-labelledby="exitHeading">
+        <div class="card compact-card">
+          <div class="badge-pill">🚪 Sesión finalizada</div>
+          <h2 id="exitHeading">¡Hasta pronto!</h2>
+          <p class="subtitle">
+            Has salido de Flappy Unicorn. Ya puedes cerrar esta pestaña o ventana cuando quieras.
+          </p>
+          <button type="button" id="returnToGameBtn" class="primary-btn">
+            <span>Volver al juego</span>
+            <span aria-hidden="true">🦄</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="game.js" defer></script>
+</body>
+</html>

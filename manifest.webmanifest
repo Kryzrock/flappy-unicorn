@@ -1,0 +1,27 @@
+{
+  "name": "Flappy Unicorn — La Reina Hongo",
+  "short_name": "Flappy Unicorn",
+  "description": "Unicornio volador con alas animadas y flatulencias turbo que recolecta hongos para encontrar a la Reina Hongo.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "theme_color": "#1e1b4b",
+  "background_color": "#0f0c29",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
