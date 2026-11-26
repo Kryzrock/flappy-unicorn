@@ -1427,6 +1427,13 @@
     const isFs = Boolean(document.fullscreenElement);
     fullscreenIcon.textContent = isFs ? '🗗' : '⛶';
     fullscreenBtn.setAttribute('aria-label', isFs ? 'Salir de pantalla completa' : 'Pantalla completa');
+    document.querySelectorAll('[data-action="fullscreen"]').forEach((btn) => {
+      btn.setAttribute('aria-label', isFs ? 'Salir de pantalla completa' : 'Pantalla completa');
+      const iconEl = btn.querySelector('[data-fs-icon]');
+      const labelEl = btn.querySelector('[data-fs-label]');
+      if (iconEl) iconEl.textContent = isFs ? '🗗' : '⛶';
+      if (labelEl) labelEl.textContent = isFs ? 'Salir pantalla' : 'Pantalla completa';
+    });
     resizeCanvas();
   });
 
@@ -1486,6 +1493,13 @@
   fullscreenBtn.addEventListener('click', toggleFullscreen);
   exitBtn.addEventListener('click', exitApp);
   returnToGameBtn.addEventListener('click', returnToStart);
+
+  document.querySelectorAll('[data-action="fullscreen"]').forEach((btn) => {
+    btn.addEventListener('click', toggleFullscreen);
+  });
+  document.querySelectorAll('[data-action="exit"]').forEach((btn) => {
+    btn.addEventListener('click', exitApp);
+  });
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && state === STATES.PLAYING) {
